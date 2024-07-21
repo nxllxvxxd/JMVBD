@@ -3,7 +3,7 @@ A collection of Python scripts in order to automate the downloading and conversi
 
 ## REQUIREMENTS
 1. Python 3.11
-2. ffmpeg
+2. ffmpeg (if you plan on using the conversion element)
 3. yt-dlp python
 4. requests python
 5. TMDB

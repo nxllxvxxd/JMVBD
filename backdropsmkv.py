@@ -1,35 +1,30 @@
-#!/usr/bin/env python3.11
-
 import os
 import logging
 import sys
 import subprocess
 
-# Ensure the script is running with Python 3.11
 if sys.version_info[:2] != (3, 11):
     sys.stderr.write("This script requires Python 3.11\n")
     sys.exit(1)
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Function to convert the video to x265 using NVENC and remove audio
 def convert_video_to_x265(input_file):
     output_file = input_file.replace('.mp4', '.mkv')
     command = [
         'ffmpeg',
-        '-y',  # Overwrite output files without asking
+        '-y',
         '-i', input_file,
         '-c:v', 'hevc_nvenc',
-        '-an',  # Remove audio
+        '-an',
         output_file
     ]
     try:
         logger.info(f"Running command: {' '.join(command)}")
         subprocess.run(command, check=True)
         if os.path.exists(output_file):
-            os.remove(input_file)  # Remove the original MP4 file after conversion
+            os.remove(input_file)
             logger.info(f"Converted video to {output_file} using x265 NVENC and removed audio")
         else:
             logger.error(f"Conversion failed, output file not found: {output_file}")
@@ -38,7 +33,6 @@ def convert_video_to_x265(input_file):
         logger.error(f"Error converting video: {e}")
     return None
 
-# Main function to process movie directories
 def process_movie_directories(base_dir):
     for root, dirs, files in os.walk(base_dir):
         for dir in dirs:
@@ -48,7 +42,6 @@ def process_movie_directories(base_dir):
                     convert_video_to_x265(video_file)
 
 if __name__ == "__main__":
-    # Check if ffmpeg is available
     try:
         subprocess.run(['ffmpeg', '-version'], check=True)
         logger.info("ffmpeg is installed and available")

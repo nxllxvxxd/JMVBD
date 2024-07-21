@@ -1,0 +1,93 @@
+import os
+import re
+import requests
+import logging
+import sys
+from yt_dlp import YoutubeDL
+
+if sys.version_info[:2] != (3, 11):
+    sys.stderr.write("This script requires Python 3.11\n")
+    sys.exit(1)
+
+TMDB_API_KEY = 'YOURAPIKEYHERE'
+BASE_URL = 'https://api.themoviedb.org/3'
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+def extract_title_and_year(dir_name):
+    match = re.match(r'^(.*?)[\s._-]*\(?(\d{4})\)?$', dir_name)
+    if match:
+        return match.group(1).strip(), match.group(2)
+    else:
+        return dir_name, None
+
+def get_movie_id(title, year):
+    search_url = f"{BASE_URL}/search/movie"
+    params = {
+        'api_key': TMDB_API_KEY,
+        'query': title,
+        'year': year
+    }
+    response = requests.get(search_url, params=params)
+    if response.status_code == 200:
+        data = response.json()
+        if data['results']:
+            for result in data['results']:
+                if result['title'].lower() == title.lower() and result['release_date'].startswith(year):
+                    logger.info(f"TMDB returned movie: {result['title']} ({result['release_date'][:4]})")
+                    return result['id']
+    return None
+
+def get_trailer_url(movie_id):
+    trailer_url = f"{BASE_URL}/movie/{movie_id}/videos"
+    params = {
+        'api_key': TMDB_API_KEY
+    }
+    response = requests.get(trailer_url, params=params)
+    if response.status_code == 200:
+        data = response.json()
+        if data['results']:
+            for video in data['results']:
+                if video['site'] == 'YouTube' and video['type'] == 'Trailer':
+                    trailer_link = f"https://www.youtube.com/watch?v={video['key']}"
+                    logger.info(f"Trailer URL: {trailer_link}")
+                    return trailer_link
+    return None
+
+def download_trailer(url, dest_folder):
+    if not os.path.exists(dest_folder):
+        os.makedirs(dest_folder)
+    video_file = os.path.join(dest_folder, 'video1.mp4')
+    ydl_opts = {
+        'format': 'best',
+        'outtmpl': video_file,
+        'quiet': True,
+        'no_warnings': True
+    }
+    try:
+        with YoutubeDL(ydl_opts) as ydl:
+            ydl.download([url])
+        logger.info(f"Trailer downloaded to {video_file}")
+        return video_file
+    except Exception as e:
+        logger.error(f"Error downloading trailer: {e}")
+    return None
+
+def process_movie_directories(base_dir):
+    for root, dirs, files in os.walk(base_dir):
+        for dir in dirs:
+            if dir.lower() == 'backdrops':
+                continue
+            movie_dir = os.path.join(root, dir)
+            original_title, year = extract_title_and_year(dir)
+            movie_id = get_movie_id(original_title, year)
+            if movie_id:
+                trailer_url = get_trailer_url(movie_id)
+                if trailer_url:
+                    backdrops_folder = os.path.join(movie_dir, 'backdrops')
+                    download_trailer(trailer_url, backdrops_folder)
+
+if __name__ == "__main__":
+    current_directory = os.path.dirname(os.path.abspath(__file__))
+    process_movie_directories(current_directory)

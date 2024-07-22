@@ -28,4 +28,4 @@ Steps:
 3. Depending on preference either delete backdropsmkv.py and edit backdrops.bat to remove it (that python script converts all the files to x265 NVENC MKV with no audio) or keep if you want that
 4. Drop the files at the head of your movie directory
 5. Run backdrops.bat
-6. And congradulations! (Note you will need to have backdrops enabled under general settings in the admin dashboard as well as enabling theme videos in general settings under your user preferences)
+6. And congratulations! (Note you will need to have backdrops enabled under general settings in the admin dashboard as well as enabling theme videos in general settings under your user preferences)

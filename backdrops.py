@@ -5,16 +5,16 @@ import logging
 import sys
 from yt_dlp import YoutubeDL
 import base64
+import subprocess
 
 # Ensure the script is running with Python 3.11
 if sys.version_info[:2] != (3, 11):
     sys.stderr.write("This script requires Python 3.11\n")
     sys.exit(1)
 
-# File to store the TMDB API key
+# Backdrops script
 API_KEY_FILE = 'apikey.txt'
 
-# Function to get TMDB API key from the file
 def get_tmdb_api_key():
     if os.path.exists(API_KEY_FILE):
         with open(API_KEY_FILE, 'r') as file:
@@ -24,7 +24,6 @@ def get_tmdb_api_key():
                 return decoded_key
     return None
 
-# Function to prompt the user for TMDB API key and save it to the file
 def prompt_for_tmdb_api_key():
     api_key = input("You have not input your TMDB API key. Please provide it now: ").strip()
     if api_key:
@@ -36,23 +35,19 @@ def prompt_for_tmdb_api_key():
         sys.stderr.write("TMDB API key is required. Exiting...\n")
         sys.exit(1)
 
-# Get TMDB API key from file or prompt for it
 TMDB_API_KEY = get_tmdb_api_key()
 if not TMDB_API_KEY:
     TMDB_API_KEY = prompt_for_tmdb_api_key()
 
 BASE_URL = 'https://api.themoviedb.org/3'
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Function to clean movie title by removing the year in parentheses
 def clean_movie_title(title):
     cleaned_title = re.sub(r'\(\d{4}\)', '', title).strip()
     return cleaned_title
 
-# Function to get the movie ID from the title
 def get_movie_id(title):
     search_url = f"{BASE_URL}/search/movie"
     params = {
@@ -67,7 +62,6 @@ def get_movie_id(title):
             return data['results'][0]['id']
     return None
 
-# Function to get the trailer URL for the movie
 def get_trailer_url(movie_id):
     trailer_url = f"{BASE_URL}/movie/{movie_id}/videos"
     params = {
@@ -84,7 +78,6 @@ def get_trailer_url(movie_id):
                     return trailer_link
     return None
 
-# Function to download the YouTube trailer using yt-dlp
 def download_trailer(url, dest_folder):
     if not os.path.exists(dest_folder):
         os.makedirs(dest_folder)
@@ -104,7 +97,6 @@ def download_trailer(url, dest_folder):
         logger.error(f"Error downloading trailer: {e}")
     return None
 
-# Main function to process movie directories
 def process_movie_directories(base_dir):
     for root, dirs, files in os.walk(base_dir):
         for dir in dirs:
@@ -114,7 +106,6 @@ def process_movie_directories(base_dir):
             backdrops_folder = os.path.join(movie_dir, 'backdrops')
             if os.path.exists(os.path.join(backdrops_folder, 'video1.mp4')) or os.path.exists(os.path.join(backdrops_folder, 'video1.mkv')):
                 logger.info(f"Trailer already exists for {dir}. Skipping download.")
-                print(f"Trailer already exists for {dir}.")
                 continue
             original_title = dir
             cleaned_title = clean_movie_title(original_title.replace('_', ' ').replace('.', ' '))
@@ -124,6 +115,43 @@ def process_movie_directories(base_dir):
                 if trailer_url:
                     download_trailer(trailer_url, backdrops_folder)
 
-if __name__ == "__main__":
+# Conversion script
+def convert_to_x265(input_file, output_file):
+    command = [
+        "ffmpeg",
+        "-i", input_file,
+        "-c:v", "hevc_nvenc",
+        "-an",
+        output_file
+    ]
+    subprocess.run(command)
+
+def convert_backdrops(base_dir):
+    for root, dirs, files in os.walk(base_dir):
+        for dir in dirs:
+            if dir.lower() == 'backdrops':
+                continue
+            backdrops_folder = os.path.join(root, dir, 'backdrops')
+            if os.path.exists(backdrops_folder):
+                for filename in os.listdir(backdrops_folder):
+                    if filename.endswith(".mp4"):  # Adjust as necessary for your specific case
+                        input_file = os.path.join(backdrops_folder, filename)
+                        output_file = os.path.join(backdrops_folder, f"{os.path.splitext(filename)[0]}.mkv")
+                        convert_to_x265(input_file, output_file)
+                        os.remove(input_file)
+
+def main():
+    # Execute the backdrops script
     current_directory = os.path.dirname(os.path.abspath(__file__))
     process_movie_directories(current_directory)
+
+    # Prompt the user for whether to execute the conversion script
+    user_input = input("Do you want to convert the backdrops to x265 NVENC MKV with audio removed? (y/n): ").strip().lower()
+    if user_input == 'y':
+        # Execute the conversion script
+        convert_backdrops(current_directory)
+    else:
+        print("Skipping conversion script execution")
+
+if __name__ == "__main__":
+    main()

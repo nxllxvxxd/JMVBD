@@ -9,34 +9,29 @@ if sys.version_info[:2] != (3, 11):
     sys.stderr.write("This script requires Python 3.11\n")
     sys.exit(1)
 
-TMDB_API_KEY = 'YOURAPIKEYHERE'
+# Replace 'your_api_key' with your actual TMDB API key
+TMDB_API_KEY = 'YOURAPIKEY'
 BASE_URL = 'https://api.themoviedb.org/3'
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def extract_title_and_year(dir_name):
-    match = re.match(r'^(.*?)[\s._-]*\(?(\d{4})\)?$', dir_name)
-    if match:
-        return match.group(1).strip(), match.group(2)
-    else:
-        return dir_name, None
+def clean_movie_title(title):
+    cleaned_title = re.sub(r'\(\d{4}\)', '', title).strip()
+    return cleaned_title
 
-def get_movie_id(title, year):
+def get_movie_id(title):
     search_url = f"{BASE_URL}/search/movie"
     params = {
         'api_key': TMDB_API_KEY,
-        'query': title,
-        'year': year
+        'query': title
     }
     response = requests.get(search_url, params=params)
     if response.status_code == 200:
         data = response.json()
         if data['results']:
-            for result in data['results']:
-                if result['title'].lower() == title.lower() and result['release_date'].startswith(year):
-                    logger.info(f"TMDB returned movie: {result['title']} ({result['release_date'][:4]})")
-                    return result['id']
+            logger.info(f"TMDB returned movie: {data['results'][0]['title']}")
+            return data['results'][0]['id']
     return None
 
 def get_trailer_url(movie_id):
@@ -82,10 +77,12 @@ def process_movie_directories(base_dir):
             movie_dir = os.path.join(root, dir)
             backdrops_folder = os.path.join(movie_dir, 'backdrops')
             if os.path.exists(os.path.join(backdrops_folder, 'video1.mp4')) or os.path.exists(os.path.join(backdrops_folder, 'video1.mkv')):
-                logger.info(f"Skipping {movie_dir} as it already contains a trailer")
+                logger.info(f"Trailer already exists for {dir}. Skipping download.")
+                print(f"Trailer already exists for {dir}.")
                 continue
-            original_title, year = extract_title_and_year(dir)
-            movie_id = get_movie_id(original_title, year)
+            original_title = dir
+            cleaned_title = clean_movie_title(original_title.replace('_', ' ').replace('.', ' '))
+            movie_id = get_movie_id(cleaned_title)
             if movie_id:
                 trailer_url = get_trailer_url(movie_id)
                 if trailer_url:

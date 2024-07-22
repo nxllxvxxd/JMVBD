@@ -1,4 +1,5 @@
-![2024-07-21 22 11 14,998](https://github.com/user-attachments/assets/5c68d2e7-1d36-4d0d-bb7c-ff0e892a3039)
+https://github.com/user-attachments/assets/f3d083b1-259a-4d49-b420-9fdeb3839773
+
 
 # **Jellyfin Video Backdrop Downloader**
 A Python script in order to automate the downloading and conversion (if you so choose) of backdrops for movies using the TMDB api, Python, ffmpeg and yt-dlp

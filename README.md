@@ -1,5 +1,5 @@
 # **Jellyfin Backdrop Downloader**
-A collection of Python scripts in order to automate the downloading and conversion (if you so choose) of backdrops for movies using the TMDB api, Python, ffmpeg and yt-dlp
+A Python script in order to automate the downloading and conversion (if you so choose) of backdrops for movies using the TMDB api, Python, ffmpeg and yt-dlp
 
 ## REQUIREMENTS
 1. Python 3.11
@@ -24,8 +24,11 @@ pip install requests
 
 Steps:
 1. Either clone the repository or download the individual files from this repo
-2. Edit backdrops.py inputting your own TMDB API key [which you can get here](https://developer.themoviedb.org/v4/reference/intro/authentication)
-3. Depending on preference either delete backdropsmkv.py and edit backdrops.bat to remove it (that python script converts all the files to x265 NVENC MKV with no audio) or keep if you want that
-4. Drop the files at the head of your movie directory
-5. Run backdrops.bat
-6. And congratulations! (Note you will need to have backdrops enabled under general settings in the admin dashboard as well as enabling theme videos in general settings under your user preferences)
+2. Copy the files `backdrops.bat` and `backdrops.py` to the top of whichever movie directory you are looking to download backdrop videos for
+3. Run either `backdrops.bat` by double clicking it (You may get a unknown source prompt this is normal just run the batch) or open a command prompt window in the directory where you copied the files and run:
+```cmd
+py -3.11 ./backdrops.py
+```
+4. You will be prompted for you TMDB API key [which you can get here](https://developer.themoviedb.org/v4/reference/intro/authentication) it will be saved next to the python script in a file named apikey.txt encoded in Base64 (be sure to copy this alongside the python script so you don't have to keep re-entering it)
+5. Let the script run and you will be prompted if you want to convert to x265 NVENC MKV with no audio
+6. Congrats! (**BE SURE TO GO TO JELLYFIN, GO TO USER SETTINGS AND ENABLE THEME VIDEOS OTHERWISE THIS WON'T SHOW ANYTHING**)

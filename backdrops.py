@@ -7,12 +7,10 @@ from yt_dlp import YoutubeDL
 import base64
 import subprocess
 
-# Ensure the script is running with Python 3.11
 if sys.version_info[:2] != (3, 11):
     sys.stderr.write("This script requires Python 3.11\n")
     sys.exit(1)
 
-# Backdrops script
 API_KEY_FILE = 'apikey.txt'
 
 def get_tmdb_api_key():
@@ -115,7 +113,6 @@ def process_movie_directories(base_dir):
                 if trailer_url:
                     download_trailer(trailer_url, backdrops_folder)
 
-# Conversion script
 def convert_to_x265(input_file, output_file):
     command = [
         "ffmpeg",
@@ -141,14 +138,11 @@ def convert_backdrops(base_dir):
                         os.remove(input_file)
 
 def main():
-    # Execute the backdrops script
     current_directory = os.path.dirname(os.path.abspath(__file__))
     process_movie_directories(current_directory)
 
-    # Prompt the user for whether to execute the conversion script
     user_input = input("Do you want to convert the backdrops to x265 NVENC MKV with audio removed? (y/n): ").strip().lower()
     if user_input == 'y':
-        # Execute the conversion script
         convert_backdrops(current_directory)
     else:
         print("Skipping conversion script execution")

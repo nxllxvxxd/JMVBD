@@ -8,7 +8,7 @@ A Python script in order to automate the downloading and conversion (if you so c
 2. ffmpeg (if you plan on using the conversion element)
 3. yt-dlp python
 4. requests python
-5. TMDB
+5. TMDB API Key
 
 
 ### REQUIREMENTS INSTALL

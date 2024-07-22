@@ -1,4 +1,4 @@
-### Jellyfin Backdrop Downloader
+# **Jellyfin Backdrop Downloader**
 A collection of Python scripts in order to automate the downloading and conversion (if you so choose) of backdrops for movies using the TMDB api, Python, ffmpeg and yt-dlp
 
 ## REQUIREMENTS
@@ -9,7 +9,7 @@ A collection of Python scripts in order to automate the downloading and conversi
 5. TMDB
 
 
-#### REQUIREMENTS INSTALL
+### REQUIREMENTS INSTALL
 Run these prior to running the scripts
 
 ```cmd
@@ -20,7 +20,7 @@ pip install yt-dlp
 pip install requests
 ```
 
-## Usage:
+### Usage:
 
 Steps:
 1. Either clone the repository or download the individual files from this repo

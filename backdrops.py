@@ -4,22 +4,55 @@ import requests
 import logging
 import sys
 from yt_dlp import YoutubeDL
+import base64
 
+# Ensure the script is running with Python 3.11
 if sys.version_info[:2] != (3, 11):
     sys.stderr.write("This script requires Python 3.11\n")
     sys.exit(1)
 
-# Replace 'your_api_key' with your actual TMDB API key
-TMDB_API_KEY = 'YOURAPIKEY'
+# File to store the TMDB API key
+API_KEY_FILE = 'apikey.txt'
+
+# Function to get TMDB API key from the file
+def get_tmdb_api_key():
+    if os.path.exists(API_KEY_FILE):
+        with open(API_KEY_FILE, 'r') as file:
+            encoded_key = file.read().strip()
+            if encoded_key:
+                decoded_key = base64.b64decode(encoded_key).decode('utf-8')
+                return decoded_key
+    return None
+
+# Function to prompt the user for TMDB API key and save it to the file
+def prompt_for_tmdb_api_key():
+    api_key = input("You have not input your TMDB API key. Please provide it now: ").strip()
+    if api_key:
+        encoded_key = base64.b64encode(api_key.encode('utf-8')).decode('utf-8')
+        with open(API_KEY_FILE, 'w') as file:
+            file.write(encoded_key)
+        return api_key
+    else:
+        sys.stderr.write("TMDB API key is required. Exiting...\n")
+        sys.exit(1)
+
+# Get TMDB API key from file or prompt for it
+TMDB_API_KEY = get_tmdb_api_key()
+if not TMDB_API_KEY:
+    TMDB_API_KEY = prompt_for_tmdb_api_key()
+
 BASE_URL = 'https://api.themoviedb.org/3'
 
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Function to clean movie title by removing the year in parentheses
 def clean_movie_title(title):
     cleaned_title = re.sub(r'\(\d{4}\)', '', title).strip()
     return cleaned_title
 
+# Function to get the movie ID from the title
 def get_movie_id(title):
     search_url = f"{BASE_URL}/search/movie"
     params = {
@@ -34,6 +67,7 @@ def get_movie_id(title):
             return data['results'][0]['id']
     return None
 
+# Function to get the trailer URL for the movie
 def get_trailer_url(movie_id):
     trailer_url = f"{BASE_URL}/movie/{movie_id}/videos"
     params = {
@@ -50,6 +84,7 @@ def get_trailer_url(movie_id):
                     return trailer_link
     return None
 
+# Function to download the YouTube trailer using yt-dlp
 def download_trailer(url, dest_folder):
     if not os.path.exists(dest_folder):
         os.makedirs(dest_folder)
@@ -69,6 +104,7 @@ def download_trailer(url, dest_folder):
         logger.error(f"Error downloading trailer: {e}")
     return None
 
+# Main function to process movie directories
 def process_movie_directories(base_dir):
     for root, dirs, files in os.walk(base_dir):
         for dir in dirs:

@@ -34,7 +34,7 @@ Steps:
 ```cmd
 py -3.11 ./backdrops.py
 ```
-4. You will be prompted for you TMDB API key [which you can get here](https://developer.themoviedb.org/v4/reference/intro/authentication) it will be saved next to the python script in a file named apikey.txt encoded in Base64 (be sure to copy this alongside the python script so you don't have to keep re-entering it)
+4. You will be prompted for your TMDB API key [which you can get here](https://developer.themoviedb.org/v4/reference/intro/authentication) it will be saved next to the python script in a file named apikey.txt encoded in Base64 (be sure to copy this alongside the python script so you don't have to keep re-entering it)
 
 ![image](https://github.com/user-attachments/assets/decbe685-6d56-455c-b530-bdffa55238ac)
 

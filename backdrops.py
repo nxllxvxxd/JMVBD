@@ -80,12 +80,15 @@ def process_movie_directories(base_dir):
             if dir.lower() == 'backdrops':
                 continue
             movie_dir = os.path.join(root, dir)
+            backdrops_folder = os.path.join(movie_dir, 'backdrops')
+            if os.path.exists(os.path.join(backdrops_folder, 'video1.mp4')) or os.path.exists(os.path.join(backdrops_folder, 'video1.mkv')):
+                logger.info(f"Skipping {movie_dir} as it already contains a trailer")
+                continue
             original_title, year = extract_title_and_year(dir)
             movie_id = get_movie_id(original_title, year)
             if movie_id:
                 trailer_url = get_trailer_url(movie_id)
                 if trailer_url:
-                    backdrops_folder = os.path.join(movie_dir, 'backdrops')
                     download_trailer(trailer_url, backdrops_folder)
 
 if __name__ == "__main__":

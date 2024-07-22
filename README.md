@@ -1,6 +1,8 @@
 # **Jellyfin Video Backdrop Downloader**
 A Python script in order to automate the downloading and conversion (if you so choose) of backdrops for movies using the TMDB api, Python, ffmpeg and yt-dlp
 
+# LOOKING FOR HELP WITH MAKING A GUI IF YOU KNOW ANYTHING SEND A PULL REQUEST
+
 ## REQUIREMENTS
 1. Python 3.11
 2. ffmpeg (if you plan on using the conversion element)

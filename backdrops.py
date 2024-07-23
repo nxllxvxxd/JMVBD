@@ -1,26 +1,3 @@
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ *########* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  ###########               
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ *########* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  ###########               
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ *########* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  ###########               
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ *########* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  ###########               
-         #@@@@@@@@@@@           *########*           @@@@@@@@@@@           ###########               
-         #@@@@@@@@@@@           *########*           @@@@@@@@@@@           ###########               
-         #@@@@@@@@@@@           *########*           @@@@@@@@@@@           ###########               
-         #@@@@@@@@@@@           *########*           @@@@@@@@@@@           ###########               
-         #@@@@@@@@@@@           *########*           @@@@@@@@@@@           ###########               
-         #@@@@@@@@@@@           *########*           @@@@@@@@@@@           ###########               
-         #@@@@@@@@@@@           *########*           @@@@@@@@@@@           ###########               
-         #@@@@@@@@@@@           *########*           @@@@@@@@@@@           ###########               
-         #@@@@@@@@@@@           *########*           @@@@@@@@@@@           ###########               
-         #@@@@@@@@@@@           *########*           @@@@@@@@@@@           ###########               
-         #@@@@@@@@@@@           *########*           @@@@@@@@@@@           ###########               
-         #@@@@@@@@@@@           *########*           @@@@@@@@@@@           ###########               
-         #@@@@@@@@@@@           *########*           @@@@@@@@@@@           ##########################
-         #@@@@@@@@@@@           *########*           @@@@@@@@@@@           ##########################
-         #@@@@@@@@@@@           *########*           @@@@@@@@@@@           ##########################
-         #@@@@@@@@@@@           *########*           @@@@@@@@@@@           ##########################
-         #@@@@@@@@@@@           *########*           @@@@@@@@@@@           ##########################
-                                                                                                                                              
-
 import os
 import re
 import requests
@@ -31,14 +8,15 @@ import base64
 import subprocess
 
 if sys.version_info[:2] != (3, 11):
-    sys.stderr.write("This script requires Python 3.11\n")
+    sys.stderr.write("\033[91mThis script requires Python 3.11\n\033[0m")
     sys.exit(1)
 
-API_KEY_FILE = 'apikey.txt'
+appdata_path = os.getenv('APPDATA')
+api_key_path = os.path.join(appdata_path, 'mvbackdrops', 'apikey.txt')
 
 def get_tmdb_api_key():
-    if os.path.exists(API_KEY_FILE):
-        with open(API_KEY_FILE, 'r') as file:
+    if os.path.exists(api_key_path):
+        with open(api_key_path, 'r') as file:
             encoded_key = file.read().strip()
             if encoded_key:
                 decoded_key = base64.b64decode(encoded_key).decode('utf-8')
@@ -49,11 +27,12 @@ def prompt_for_tmdb_api_key():
     api_key = input("You have not input your TMDB API key. Please provide it now: ").strip()
     if api_key:
         encoded_key = base64.b64encode(api_key.encode('utf-8')).decode('utf-8')
-        with open(API_KEY_FILE, 'w') as file:
+        os.makedirs(os.path.dirname(api_key_path), exist_ok=True)
+        with open(api_key_path, 'w') as file:
             file.write(encoded_key)
         return api_key
     else:
-        sys.stderr.write("TMDB API key is required. Exiting...\n")
+        sys.stderr.write("\033[91mTMDB API key is required. Exiting...\n\033[0m")
         sys.exit(1)
 
 TMDB_API_KEY = get_tmdb_api_key()
@@ -161,12 +140,21 @@ def convert_backdrops(base_dir):
                         os.remove(input_file)
 
 def main():
+    print("\033[91m                     __  __                                                 __ \033[0m")
+    print("\033[91m                    /  |/  |                                               /  |\033[0m")
+    print("\033[91m _______   __    __ $$ |$$ | __    __  __     __  __    __  __    __   ____$$ |\033[0m")
+    print("\033[91m/       \ /  \  /  |$$ |$$ |/  \  /  |/  \   /  |/  \  /  |/  \  /  | /    $$ |\033[0m")
+    print("\033[91m$$$$$$$  |$$  \/$$/ $$ |$$ |$$  \/$$/ $$  \ /$$/ $$  \/$$/ $$  \/$$/ /$$$$$$$ |\033[0m")
+    print("\033[91m$$ |  $$ | $$  $$<  $$ |$$ | $$  $$<   $$  /$$/   $$  $$<   $$  $$<  $$ |  $$ |\033[0m")
+    print("\033[91m$$ |  $$ | /$$$$  \ $$ |$$ | /$$$$  \   $$ $$/    /$$$$  \  /$$$$  \ $$ \__$$ |\033[0m")
+    print("\033[91m$$ |  $$ |/$$/ $$  |$$ |$$ |/$$/ $$  |   $$$/    /$$/ $$  |/$$/ $$  |$$    $$ |\033[0m")
+    print("\033[91m$$/   $$/ $$/   $$/ $$/ $$/ $$/   $$/     $/     $$/   $$/ $$/   $$/  $$$$$$$/\033[0m")
+    
     current_directory = os.path.dirname(os.path.abspath(__file__))
     process_movie_directories(current_directory)
 
     user_input = input("Do you want to convert the backdrops to x265 NVENC MKV with audio removed? (y/n): ").strip().lower()
     if user_input == 'y':
-        # Execute the conversion script
         convert_backdrops(current_directory)
     else:
         print("Skipping conversion script execution")

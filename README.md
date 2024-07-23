@@ -9,9 +9,7 @@ A Python script in order to automate the downloading and conversion (if you so c
 ## REQUIREMENTS
 1. Python 3.11
 2. ffmpeg (if you plan on using the conversion element)
-3. yt-dlp python
-4. requests python
-5. TMDB API Key
+3. TMDB API Key
 
 
 ### Usage:
@@ -23,7 +21,7 @@ Steps:
 4. Run either `mvbackdrops.bat` by double clicking it (You may get a unknown source prompt this is normal just run the batch) or open a command prompt window in the directory where you copied the files and run:
 
 ```cmd
-py -3.11 ./backdrops.py
+py -3.11 ./mvbackdrops.py
 ```
 5. You will be prompted for your TMDB API key [which you can get here](https://developer.themoviedb.org/v4/reference/intro/authentication) it will be saved in your appdata folder in a file named apikey.txt encoded in Base64
 

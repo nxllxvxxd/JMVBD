@@ -14,27 +14,18 @@ A Python script in order to automate the downloading and conversion (if you so c
 5. TMDB API Key
 
 
-### REQUIREMENTS INSTALL
-Run these prior to running the scripts
-
-```cmd
-pip install yt-dlp
-```
-
-```cmd
-pip install requests
-```
-
 ### Usage:
 
 Steps:
 1. Either clone the repository or download the individual files from this repo
-2. Copy the files `backdrops.bat` and `backdrops.py` to the top of whichever movie directory you are looking to download backdrop videos for
-3. Run either `backdrops.bat` by double clicking it (You may get a unknown source prompt this is normal just run the batch) or open a command prompt window in the directory where you copied the files and run:
+2. Run ```pip install -r requirements.txt```
+3. Copy the files `mvbackdrops.bat` and `mvbackdrops.py` to the top of whichever movie directory you are looking to download backdrop videos for
+4. Run either `mvbackdrops.bat` by double clicking it (You may get a unknown source prompt this is normal just run the batch) or open a command prompt window in the directory where you copied the files and run:
+
 ```cmd
 py -3.11 ./backdrops.py
 ```
-4. You will be prompted for your TMDB API key [which you can get here](https://developer.themoviedb.org/v4/reference/intro/authentication) it will be saved next to the python script in a file named apikey.txt encoded in Base64 (be sure to copy this alongside the python script so you don't have to keep re-entering it)
+5. You will be prompted for your TMDB API key [which you can get here](https://developer.themoviedb.org/v4/reference/intro/authentication) it will be saved in your appdata folder in a file named apikey.txt encoded in Base64
 
 ![image](https://github.com/user-attachments/assets/decbe685-6d56-455c-b530-bdffa55238ac)
 

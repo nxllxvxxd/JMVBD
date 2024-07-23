@@ -3,6 +3,7 @@ import re
 import requests
 import logging
 import sys
+import sqlite3
 from yt_dlp import YoutubeDL
 import base64
 import subprocess
@@ -12,6 +13,7 @@ if sys.version_info[:2] != (3, 11):
     sys.exit(1)
 
 appdata_path = os.getenv('APPDATA')
+db_path = os.path.join(appdata_path, 'mvbackdrops', 'processed_folders.db')
 api_key_path = os.path.join(appdata_path, 'mvbackdrops', 'apikey.txt')
 
 def get_tmdb_api_key():
@@ -34,6 +36,29 @@ def prompt_for_tmdb_api_key():
     else:
         sys.stderr.write("\033[91mTMDB API key is required. Exiting...\n\033[0m")
         sys.exit(1)
+
+def initialize_database():
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS processed_folders (folder TEXT PRIMARY KEY)''')
+    conn.commit()
+    conn.close()
+
+def is_folder_processed(folder):
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+    c.execute('SELECT 1 FROM processed_folders WHERE folder = ?', (folder,))
+    result = c.fetchone()
+    conn.close()
+    return result is not None
+
+def mark_folder_as_processed(folder):
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+    c.execute('INSERT OR IGNORE INTO processed_folders (folder) VALUES (?)', (folder,))
+    conn.commit()
+    conn.close()
 
 TMDB_API_KEY = get_tmdb_api_key()
 if not TMDB_API_KEY:
@@ -104,8 +129,12 @@ def process_movie_directories(base_dir):
                 continue
             movie_dir = os.path.join(root, dir)
             backdrops_folder = os.path.join(movie_dir, 'backdrops')
+            if is_folder_processed(movie_dir):
+                logger.info(f"Folder {movie_dir} already processed. Skipping download.")
+                continue
             if os.path.exists(os.path.join(backdrops_folder, 'video1.mp4')) or os.path.exists(os.path.join(backdrops_folder, 'video1.mkv')):
                 logger.info(f"Trailer already exists for {dir}. Skipping download.")
+                mark_folder_as_processed(movie_dir)
                 continue
             original_title = dir
             cleaned_title = clean_movie_title(original_title.replace('_', ' ').replace('.', ' '))
@@ -113,7 +142,9 @@ def process_movie_directories(base_dir):
             if movie_id:
                 trailer_url = get_trailer_url(movie_id)
                 if trailer_url:
-                    download_trailer(trailer_url, backdrops_folder)
+                    downloaded_file = download_trailer(trailer_url, backdrops_folder)
+                    if downloaded_file:
+                        mark_folder_as_processed(movie_dir)
 
 def convert_to_x265(input_file, output_file):
     command = [
@@ -149,8 +180,9 @@ def main():
     print("\033[91m$$ |  $$ | /$$$$  \ $$ |$$ | /$$$$  \   $$ $$/    /$$$$  \  /$$$$  \ $$ \__$$ |\033[0m")
     print("\033[91m$$ |  $$ |/$$/ $$  |$$ |$$ |/$$/ $$  |   $$$/    /$$/ $$  |/$$/ $$  |$$    $$ |\033[0m")
     print("\033[91m$$/   $$/ $$/   $$/ $$/ $$/ $$/   $$/     $/     $$/   $$/ $$/   $$/  $$$$$$$/\033[0m")
-    
+
     current_directory = os.path.dirname(os.path.abspath(__file__))
+    initialize_database()
     process_movie_directories(current_directory)
 
     user_input = input("Do you want to convert the backdrops to x265 NVENC MKV with audio removed? (y/n): ").strip().lower()

@@ -12,7 +12,14 @@ if sys.version_info[:2] != (3, 11):
     sys.stderr.write("\033[91mThis script requires Python 3.11\n\033[0m")
     sys.exit(1)
 
-appdata_path = os.getenv('APPDATA')
+# Determine the appropriate app data path based on the operating system
+if os.name == 'nt':  # Windows
+    appdata_path = os.getenv('APPDATA')
+    if appdata_path is None:
+        raise ValueError("The APPDATA environment variable is not set. Please set it to continue.")
+else:  # macOS or Linux
+    appdata_path = os.path.expanduser('~/.config')
+
 db_path = os.path.join(appdata_path, 'mvbackdrops', 'processed_folders.db')
 api_key_path = os.path.join(appdata_path, 'mvbackdrops', 'apikey.txt')
 

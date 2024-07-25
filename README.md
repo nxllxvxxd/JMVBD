@@ -14,7 +14,7 @@ A Python script in order to automate the downloading and conversion (if you so c
 ### Usage:
 
 Steps:
-1. Either clone the repository, download the individual files from this repo, or install with pip! ```pip install jmvbd```
+1. Either clone the repository, download the individual files from this repo
 2. Run ```pip install -r ./requirements.txt``` from within the same directory as your requirements.txt file 
 3. Copy the file `jmvbd.py` to the top of whichever movie directory you are looking to download backdrop videos for or into a folder in your path to be able to run it from anywhere
 4. Open a command prompt window in the directory where you copied the files and run:

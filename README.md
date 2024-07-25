@@ -15,7 +15,7 @@ A Python script in order to automate the downloading and conversion (if you so c
 ### Usage:
 
 Steps:
-1. Either clone the repository or download the individual files from this repo
+1. Either clone the repository, download the individual files from this repo, or download the latest release
 2. Run ```pip install -r requirements.txt```
 3. Copy the files `mvbackdrops.bat` and `mvbackdrops.py` to the top of whichever movie directory you are looking to download backdrop videos for
 4. Run either `mvbackdrops.bat` by double clicking it (You may get a unknown source prompt this is normal just run the batch) or open a command prompt window in the directory where you copied the files and run:
